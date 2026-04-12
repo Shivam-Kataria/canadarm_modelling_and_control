@@ -1,28 +1,24 @@
 function updateRobot(LinkPatches, V0, theta)
 
-    % Joint origins from actual CAD geometry
-    origins = [0.4500  -0.0000  1.2446;   % joint 1
-               0.7206   0.3986  1.2455;   % joint 2
-               7.7567   0.9602  1.2461;   % joint 3
-               14.7132  1.4514  1.2463;   % joint 4
-               15.0490  1.9533  1.2452;   % joint 5
-               15.5100  2.6372  1.2464];  % joint 6
+    origins = [0.4500  -0.0000  1.2446;
+               0.7206   0.3986  1.2455;
+               7.7567   0.9602  1.2461;
+               14.7132  1.4514  1.2463;
+               15.0490  1.9533  1.2452;
+               15.5100  2.6372  1.2464];
 
-    % Joint rotation axes (verified from FK)
-    axes = [1  0  0;   % joint 1 - Y axis (was Z, wrong)
-            0  1  0;   % joint 2 - Y axis (correct)
-            0  1  0;   % joint 3 - Y axis (was Z, wrong)
-            0  1  0;   % joint 4 - Y axis (was Z, wrong)
-            1  0  0;   % joint 5 - X axis (was Y, wrong)
-            0  1  0];   % joint 6 - Y axis (was Z, wrong)
+    axes = [1  0  0;
+            0  1  0;
+            0  1  0;
+            0  1  0;
+            1  0  0;
+            0  1  0];
 
-    % Copy vertices
     V_current = cell(1,7);
     for i = 1:7
         V_current{i} = V0{i}(:,1:3);
     end
 
-    % Apply joints sequentially
     for j = 1:6
         angle = deg2rad(theta(j));
         origin = origins(j,:);
@@ -40,14 +36,18 @@ function updateRobot(LinkPatches, V0, theta)
             V_current{i} = V_new;
         end
 
-        % Update downstream joint origins
+        % Update downstream joint origins AND axes
         for k = j+1:6
+            % Update origin
             v = origins(k,:) - origin;
             origins(k,:) = v*cos(angle) + cross(ax,v)*sin(angle) + ax*dot(ax,v)*(1-cos(angle)) + origin;
+
+            % Update axis direction
+            ax_k = axes(k,:);
+            axes(k,:) = ax_k*cos(angle) + cross(ax,ax_k)*sin(angle) + ax*dot(ax,ax_k)*(1-cos(angle));
         end
     end
 
-    % Update patches
     for i = 1:7
         set(LinkPatches{i}, 'Vertices', V_current{i});
     end
