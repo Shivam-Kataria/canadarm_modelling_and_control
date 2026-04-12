@@ -6,7 +6,7 @@ function Robot_cad2mat
 % 2) This Matlab routine reads the CAD data
 % 3) Once read, the CAD data for each link is stored into a struct.
 %
-
+%%
 file1 = 'arm1 - Part 1.STL'; % link 1
 file2 = 'arm1 - Part 2.STL'; % link 2
 file3 = 'arm1 - Part 3.STL'; % link 3
@@ -14,6 +14,16 @@ file4 = 'arm1 - Part 4.STL'; % link 4
 file5 = 'arm1 - Part 5.STL'; % link 5
 file6 = 'arm1 - Part 6.STL'; % link 6
 file7 = 'arm1 - Part 7.STL'; % link 7
+
+%%
+%file1 = './OSModels/arm1 - Part 1OS.STL'; % link 1
+%file2 = './OSModels/arm1 - Part 2OS.STL'; % link 2
+%file3 = './OSModels/arm1 - Part 3OS.STL'; % link 3
+%file4 = './OSModels/arm1 - Part 4OS.STL'; % link 4
+%file5 = './OSModels/arm1 - Part 5OS.STL'; % link 5
+%file6 = './OSModels/arm1 - Part 6OS.STL'; % link 6
+%file7 = './OSModels/arm1 - Part 7OS.STL'; % link 7
+%%
 
 %
 % Read the CAD data file:
