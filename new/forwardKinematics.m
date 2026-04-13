@@ -1,15 +1,48 @@
 function [T01,T02,T03,T04,T05,T06] = forwardKinematics(theta)
-    DH_a     = [0,     0.722, 7.37,  0,     7.04,  0.731];
-    DH_d     = [0,     0,     0.508, 0,     0,     0    ];
-    DH_alpha = [-90,   90,    0,     -90,   90,    -90  ];
+    % Joint origins and axes derived directly from CAD geometry
+    % These match exactly what updateRobot uses
+    
+    origins = [0.4500  0.0000  1.2446;
+               0.7206  0.3986  1.2455;
+               7.7567  0.9602  1.2461;
+               14.7132 1.4514  1.2463;
+               15.0490 1.9533  1.2452;
+               15.5100 2.6372  1.2464];
 
-    T01 = DHmat(DH_a(1),DH_d(1),DH_alpha(1),theta(1));
-    T12 = DHmat(DH_a(2),DH_d(2),DH_alpha(2),theta(2));
-    T23 = DHmat(DH_a(3),DH_d(3),DH_alpha(3),theta(3));
-    T34 = DHmat(DH_a(4),DH_d(4),DH_alpha(4),theta(4));
-    T45 = DHmat(DH_a(5),DH_d(5),DH_alpha(5),theta(5));
-    T56 = DHmat(DH_a(6),DH_d(6),DH_alpha(6),theta(6));
+    axes = [1  0  0;
+            0  1  0;
+            0  1  0;
+            0  1  0;
+            1  0  0;
+            0  1  0];
 
-    T02 = T01*T12; T03 = T02*T23;
-    T04 = T03*T34; T05 = T04*T45; T06 = T05*T56;
+    % Build cumulative transforms
+    T = eye(4);
+    Tall = cell(1,6);
+    
+    for j = 1:6
+        origin = origins(j,:)';
+        ax = axes(j,:)';
+        angle = deg2rad(theta(j));
+        
+        % Rotation matrix about axis
+        c = cos(angle); s = sin(angle);
+        K = [0 -ax(3) ax(2); ax(3) 0 -ax(1); -ax(2) ax(1) 0];
+        R = eye(3) + s*K + (1-c)*K*K;
+        
+        % Transform for this joint
+        Tj = eye(4);
+        Tj(1:3,1:3) = R;
+        Tj(1:3,4) = origin - R*origin;
+        
+        T = Tj * T;
+        Tall{j} = T;
+    end
+    
+    T01 = Tall{1};
+    T02 = Tall{2};
+    T03 = Tall{3};
+    T04 = Tall{4};
+    T05 = Tall{5};
+    T06 = Tall{6};
 end
